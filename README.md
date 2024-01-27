@@ -1,0 +1,1 @@
+Code permettant le suivi et le tracé de bulles dans une flûte de champagne en utilisant la librairie OpenCV et les méthodes de Shi-Tomasi (pour la détection des points d'intérêt et Lucas Kanade (pour le suivi entre les frames). Pour executer il faut un fichier cible .mov dont le nom correspond au grain voulu dans le code ("400" par défaut).
