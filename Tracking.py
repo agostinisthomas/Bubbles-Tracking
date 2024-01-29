@@ -4,8 +4,7 @@ import time
 import csv
 
 
-# Echelle Video - Réalité
-
+# Echelle Video/Réalité
 scale=0.6
 
 grain=400# Taille du grain à analyser
