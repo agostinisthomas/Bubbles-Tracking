@@ -6,13 +6,13 @@ import csv
 
 # Echelle Video - Réalité
 
-scale=1.85e-4
+scale=0.6
 
 grain=400# Taille du grain à analyser
 
 cap = cv2.VideoCapture('/Users/Thomas/Documents/CODE/BUBBLES/Tracking/{}.mov'.format(grain))
-fourcc = cv2.VideoWriter_fourcc(*'XVID')
-out = cv2.VideoWriter('output.avi', fourcc, 25.0, (1280,720))
+fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+out = cv2.VideoWriter('./output.avi', fourcc, 25.0, (1280,720))
 print(cap)
 
 # params for ShiTomasi corner detection
@@ -71,13 +71,12 @@ while(iteration<500):
     ret,frame = cap.read() # Prend la frame suivante
     frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) # La met en nuances de gris
 
-    # calculate optical flow
-    p1, st, err = cv2.calcOpticalFlowPyrLK(old_gray, frame_gray, p0, None, **lk_params)  # Lucas-Kanade : calcul de V_x et V_y pour avoir le flot optique
-    #print("Vecteur err : ",err)
+    # calculate optical flow with Lucas-Kanade : renvoi les points suivants dans p1, le status et le taux d'err.
+    p1, st, err = cv2.calcOpticalFlowPyrLK(old_gray, frame_gray, p0, None, **lk_params) 
 
-    # Select good points
-    good_new = p1[st==1]  # p1 contient les nouveaux points
-    good_old = p0[st==1]  # p0 contient toujours les points de la frame précédente
+    # Select good points : màj de p0 & p1 pour contenir les points de frame n-1 & n respectivement
+    good_new = p1[st==1] 
+    good_old = p0[st==1]  
     
     n=m
     m=len(p1)
@@ -85,16 +84,17 @@ while(iteration<500):
         max=m
     
 
-    #draw the tracks
-    # for i,(new,old) in enumerate(zip(good_new,good_old)):
-    #     a,b = new.ravel()
-    #     c,d = old.ravel()
-    #     mask = cv2.line(mask, (a,b),(c,d), color[i].tolist(), 2)
-    #     frame = cv2.circle(frame,(a,b),5,color[i].tolist(),-1)
-    # img = cv2.add(frame,mask)
+    # Tracer les trajectoires
+    for i,(new,old) in enumerate(zip(good_new,good_old)):
+        a,b = new.ravel()
+        print("The starting coordinates of the line are : " ,(a,b))
+        c,d = old.ravel()
+        print("The ending coordinates of the line are : " ,(c,d))
+        mask = cv2.line(mask, (int(a),int(b)),(int(c),int(d)), (255,255,255), 2)
+        frame = cv2.circle(frame,(int(a),int(b)),5,(255,255,255),-1)
+    img = cv2.add(frame,mask)
+    cv2.imshow('frame',img)
     
-
-    #cv2.imshow('frame',img)
     k = cv2.waitKey(500) & 0xff
     if k == 100 :
         break
@@ -117,7 +117,7 @@ while(iteration<500):
     print ("y1 = ",y1)
     print("Vitesse bulle 1 = ",vitesse_bulle1)
    
-
+    # Sorties de données :
 
     with open("/Users/Thomas/Documents/CODE/BUBBLES/Tracking/data_{}.csv".format(grain),"a+", newline='') as csvfile :
         writer=csv.writer(csvfile, dialect='excel' ,delimiter=';')
